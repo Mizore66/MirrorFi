@@ -140,6 +140,7 @@ const CreateStrategyPage = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
   const [selectedNode, setSelectedNode] = useState<Node | null>(null)
+  const [previousNode, setPreviousNode] = useState<Node | null>(null) // New state to track the previous node
   const [open, setOpen] = useState(false)
 
   const onConnect = useCallback(
@@ -160,16 +161,35 @@ const CreateStrategyPage = () => {
     [setEdges],
   )
 
-  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-    setSelectedNode(node)
-  }, [])
+  const onNodeClick = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      if (previousNode) {
+        // Create an edge between the previously selected node and the current node
+        const newEdge: Edge = {
+          id: `e${previousNode.id}-${node.id}`,
+          source: previousNode.id,
+          target: node.id,
+          animated: true,
+          style: { strokeDasharray: "5, 5" },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+          },
+        }
+        setEdges((eds) => [...eds, newEdge])
+        setPreviousNode(null) // Reset the previous node
+      } else {
+        setPreviousNode(node) // Set the current node as the previous node
+      }
+      setSelectedNode(node) // Update the selected node
+    },
+    [previousNode, setEdges],
+  )
 
   const handleCreateNode = useCallback(
     (nodeData: {
       label: string
       description: string
-      nodeType: "deposit" | "stake" | "swap" | "apr" | "yield"
-      percentage?: string
+      nodeType: "protocol" | "token"
     }) => {
       const newNode: Node = {
         id: `${nodes.length + 1}-${Date.now()}`,
@@ -186,8 +206,6 @@ const CreateStrategyPage = () => {
     [nodes, setNodes],
   )
 
-
-  
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <header className="flex items-center justify-between p-6 bg-card border-b border-border">
@@ -274,7 +292,7 @@ const CreateStrategyPage = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            onNodeClick={onNodeClick}
+            onNodeClick={onNodeClick} // Updated onNodeClick
             nodeTypes={nodeTypes}
             fitView
             className="bg-background"

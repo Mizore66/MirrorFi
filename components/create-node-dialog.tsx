@@ -16,6 +16,7 @@ interface CreateNodeDialogProps {
     label: string
     description: string
     nodeType: "protocol" | "token"
+    connectionCount: number
   }) => void
 
   isOpen: boolean
@@ -43,7 +44,9 @@ export function CreateNodeDialog({ onCreateNode, isOpen, onClose }: CreateNodeDi
 
   // Reset state when the dialog is closed
   const handleClose = () => {
-    handleClose()
+    setNodeType(null)
+    setSelectedOption(null)
+    onClose()
   }
   const handleConfirm = () => {
     if (!nodeType || !selectedOption) return
@@ -52,6 +55,7 @@ export function CreateNodeDialog({ onCreateNode, isOpen, onClose }: CreateNodeDi
       label: selectedOption,
       description: nodeType === "protocol" ? `Protocol: ${selectedOption}` : `Token: ${selectedOption}`,
       nodeType,
+      connectionCount: 0,
     })
 
     // Reset state and close dialog

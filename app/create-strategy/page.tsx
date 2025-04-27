@@ -86,7 +86,6 @@ const CreateStrategyPage = () => {
           x: nodeToConnect ? nodeToConnect.position.x + 400 : Math.random() * 300 + 200,
           y: nodeToConnect ? nodeToConnect.position.y + ((-1)**connectionCount)*200*(Math.ceil(connectionCount/2)): Math.random() * 300 + 50,
         },
-      draggable: false,
       }
 
       
